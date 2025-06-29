@@ -1,4 +1,4 @@
-import { ShowNotification } from "../shared/message_types";
+import { ShowNotification } from "@/entrypoints/shared/message_types";
 
 const show_notification = ({ message, result, duration }: ShowNotification) => {
   let existingOverlay = document.getElementById("extension-message-overlay");
@@ -46,4 +46,4 @@ const show_notification = ({ message, result, duration }: ShowNotification) => {
   }, duration);
 };
 
-export { show_notification, ShowNotification };
+export { show_notification };

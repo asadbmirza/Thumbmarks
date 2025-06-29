@@ -3,7 +3,7 @@ import {
   ContentMessageTypeFunction,
   Message,
 } from "../shared/message_types";
-import { show_notification } from "./show_notification";
+import { show_notification } from "./notification/show_notification";
 
 const messageTypeFunction: ContentMessageTypeFunction = {
   [ContentMessageType.ShowNotification]: show_notification,

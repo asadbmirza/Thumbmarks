@@ -1,5 +1,4 @@
-import { ShowNotification } from "../content/show_notification";
-import { ContentMessageType, Message } from "../shared/message_types";
+import { ContentMessageType, Message, ShowNotification } from "../shared/message_types";
 
 const trigger_show_notification = async (
   message: ShowNotification["message"],
