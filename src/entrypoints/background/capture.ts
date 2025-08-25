@@ -1,3 +1,4 @@
+import { process_bookmark } from "@/lib/supabase/bookmark";
 import { Result } from "../shared/utils";
 import { trigger_show_notification } from "./trigger_show_notification";
 
@@ -10,6 +11,15 @@ const capture_webpage = async () => {
       Result.Success,
       3000
     );
+    const bookmark = {
+      title: "",
+      thumbnail: "temp",
+      url: "temp",
+      notes: "",
+      scroll_x: 0,
+      scroll_y: 0,
+    };
+    await process_bookmark(bookmark, captured);
   } else {
     await trigger_show_notification(
       "Failed to capture screen",
@@ -17,6 +27,7 @@ const capture_webpage = async () => {
       3000
     );
   }
+  console.log(captured)
 };
 
 export { capture_webpage };

@@ -7,7 +7,7 @@ export default defineConfig({
   manifest: {
     name: 'Thumbmark\'s - Visual Bookmarks',
     version: '1.0.0',
-    permissions: ['storage', 'scripting', 'activeTab', 'tabs'], // Your permissions go here
+    permissions: ['storage', 'scripting', 'activeTab', 'tabs'], 
     host_permissions: ['<all_urls>'],
   }
 });

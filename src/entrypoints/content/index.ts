@@ -10,7 +10,7 @@ const messageTypeFunction: ContentMessageTypeFunction = {
 };
 
 export default defineContentScript({
-  matches: ["*://*.google.com/*"],
+  matches: ["<all_urls>"],
   main() {
     chrome.runtime.onMessage.addListener((message: Message) => {
       const handler = messageTypeFunction[message.type as ContentMessageType];
