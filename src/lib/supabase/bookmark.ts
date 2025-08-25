@@ -3,6 +3,7 @@ import { ensure_user_session, fetch_user_id } from "./authenticate";
 import { save_image } from "./storage";
 import supabase from "./supabase_init";
 import { Database } from "../../types/database";
+import { BookmarkInsert, BookmarkRow } from "@/types/bookmark";
 
 const fetch_bookmarks = async () => {
   const user_id = await fetch_user_id();
@@ -20,13 +21,10 @@ const fetch_bookmarks = async () => {
     throw new Error(`Supabase error (${status}): ${error.message}`);
   }
 
-  return bookmarks;
+  return bookmarks as BookmarkRow[];
 };
 
-const process_bookmark = async (
-  bookmark: Database["public"]["Tables"]["bookmarks"]["Insert"],
-  captured: string
-) => {
+const process_bookmark = async (bookmark: BookmarkInsert, captured: string) => {
   const user_id = await fetch_user_id();
   try {
     const blob = dataURLtoBlob(captured);
@@ -39,7 +37,7 @@ const process_bookmark = async (
     console.log("thumbnail:", thumbnail);
     await save_image(thumbnail, path);
 
-    const bookmarks = await insert_bookmark({
+    const bookmarks : BookmarkRow[] = await insert_bookmark({
       ...bookmark,
       thumbnail: path,
       user_id: user_id,
@@ -51,7 +49,9 @@ const process_bookmark = async (
   }
 };
 
-const insert_bookmark = async (bookmark: Database["public"]["Tables"]["bookmarks"]["Insert"]) => {
+const insert_bookmark = async (
+  bookmark: BookmarkInsert
+) => {
   const {
     data: bookmarks,
     error,
@@ -62,7 +62,7 @@ const insert_bookmark = async (bookmark: Database["public"]["Tables"]["bookmarks
     throw new Error(`Supabase error (${status}): ${error.message}`);
   }
 
-  return bookmarks;
+  return bookmarks as BookmarkRow[];
 };
 
 export { fetch_bookmarks, process_bookmark };

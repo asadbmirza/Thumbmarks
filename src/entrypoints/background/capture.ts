@@ -1,6 +1,7 @@
 import { process_bookmark } from "@/lib/supabase/bookmark";
 import { Result } from "../shared/utils";
 import { trigger_show_notification } from "./trigger_show_notification";
+import { BookmarkInsert } from "@/types/bookmark";
 
 const capture_webpage = async () => {
   const captured = await chrome.tabs.captureVisibleTab();
@@ -11,7 +12,7 @@ const capture_webpage = async () => {
       Result.Success,
       3000
     );
-    const bookmark = {
+    const bookmark : BookmarkInsert = {
       title: "",
       thumbnail: "temp",
       url: "temp",
