@@ -27,7 +27,6 @@ const capture_webpage = async () => {
       3000
     );
   }
-  console.log(captured)
 };
 
 export { capture_webpage };

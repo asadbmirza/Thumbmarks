@@ -1,14 +1,20 @@
+import { dataURLtoBlob } from "../utils";
+import { fetch_user_id } from "./authenticate";
 import supabase from "./supabase_init";
 
-
-const save_image = async (captured: any) => {
-    const { data, error } = await supabase.storage
+const save_image = async (blob: Blob, path: string) => {
+  const { data, error } = await supabase.storage
     .from("thumbnails")
-    .upload("thumbnail.png", captured);
+    .upload(path, blob);
 
-    if (error) {
-        throw new Error(`Supabase error (${error.name}): ${error.message}`);
-    }
+  if (error) {
+    throw new Error(
+      `Supabase error (${JSON.stringify(error)}): ${error.message}`
+    );
+  }
+  console.log("data:", data);
 
-    return data.path;
-}
+  return data.path;
+};
+
+export { save_image };

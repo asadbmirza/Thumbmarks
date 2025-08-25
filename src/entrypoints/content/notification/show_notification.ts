@@ -28,8 +28,6 @@ const show_notification = ({ message, result, duration }: ShowNotification) => {
     `;
 
   document.body.appendChild(overlay);
-  console.log(overlay);
-  console.log(overlay.parentElement);
   requestAnimationFrame(() => {
     overlay.style.opacity = "1";
   });

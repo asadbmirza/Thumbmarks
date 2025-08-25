@@ -1,3 +1,5 @@
+const MAX_SIZE = 600;
+
 const dataURLtoBlob = (dataURL: string) => {
   // Split into "metadata" and the actual Base64 data
   const [header, base64Data] = dataURL.split(",");
@@ -17,4 +19,21 @@ const dataURLtoBlob = (dataURL: string) => {
   return new Blob([arrayBuffer], { type: mime });
 };
 
-export { dataURLtoBlob };
+const createThumbnail = async (fileBlob: Blob) => {
+  const img = await createImageBitmap(fileBlob);
+  
+  const canvas = new OffscreenCanvas(MAX_SIZE, MAX_SIZE);
+  const scale = Math.min(MAX_SIZE / img.width, MAX_SIZE / img.height, 1);
+  canvas.width = img.width * scale;
+  canvas.height = img.height * scale;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Could not get 2D context from canvas");
+  }
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  return await canvas.convertToBlob({ type: "image/jpeg", quality: 0.7 });
+};
+
+export { dataURLtoBlob, createThumbnail };

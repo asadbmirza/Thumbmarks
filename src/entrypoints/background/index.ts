@@ -18,7 +18,6 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     console.log("Thumbmark Extension: First-time installation detected.");
     try {
       const user_id = await ensure_user_session();
-      console.log("User ID from ensure_user_session:", user_id);
     } catch (err) {
       console.error("Error occurred during installation:", err);
     }
