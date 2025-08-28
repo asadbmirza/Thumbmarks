@@ -1,4 +1,4 @@
-import { ensure_user_session } from "@/lib/supabase/authenticate";
+import { ensure_user_session } from "@/lib/supabase/setup/authenticate";
 import {
   BackgroundMessageType,
   BackgroundMessageTypeFunction,
@@ -7,10 +7,12 @@ import {
 import { capture_webpage } from "./capture";
 import { trigger_show_notification } from "./trigger_show_notification";
 import { Result } from "../shared/utils";
-import supabase from "@/lib/supabase/supabase_init";
+import supabase from "@/lib/supabase/setup/supabase_init";
+import { delete_bookmark } from "@/lib/supabase/operations/bookmark";
 
 const messageTypeFunction: BackgroundMessageTypeFunction = {
   [BackgroundMessageType.CaptureScreen]: capture_webpage,
+  [BackgroundMessageType.DeleteBookmark]: () => {}, //For testing
 };
 
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -21,6 +23,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     } catch (err) {
       console.error("Error occurred during installation:", err);
     }
+    
   }
 });
 

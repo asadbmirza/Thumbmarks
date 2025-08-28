@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import reactLogo from '@/assets/react.svg';
 import wxtLogo from '/wxt.svg';
 import './App.css';
@@ -19,6 +18,16 @@ function App() {
     
   }
 
+  const onDelete = async () => {
+    try {
+      await chrome.runtime.sendMessage<Message>({
+        type: BackgroundMessageType.DeleteBookmark,
+      })
+    } catch (error) {
+      console.error("Failed to delete the bookmark", error);
+    }
+  }
+
   return (
     <>
       <div>
@@ -32,6 +41,7 @@ function App() {
       <h1>dfd + sds</h1>
       <div className="card">
         <Button onClick={onCapture}>Capture webpage</Button>
+        <Button onClick={onDelete}>Delete Bookmark</Button>
       </div>
       <p className="read-the-docs">
         Click on the WXT and React logos to learn more

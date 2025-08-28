@@ -2,6 +2,7 @@ import { Result } from "./utils";
 
 enum BackgroundMessageType {
   CaptureScreen = "CAPTURE_SCREEN",
+  DeleteBookmark = "DELETE_BOOKMARK"
 }
 
 
@@ -11,6 +12,7 @@ type BackgroundMessageTypeFunction = {
 
 enum ContentMessageType {
   ShowNotification = "SHOW_NOTIFICATION",
+  GetScrollData = "GET_SCROLL_DATA"
 }
 
 type ShowNotification = {
@@ -19,8 +21,16 @@ type ShowNotification = {
   duration: number;
 };
 
+type ScrollData = {
+  scrollX: number;
+  scrollY: number;
+  documentHeight: number;
+  windowHeight: number;
+};
+
 type ContentMessageTypeFunction = {
   [ContentMessageType.ShowNotification]: (payload: ShowNotification) => void;
+  [ContentMessageType.GetScrollData]: () => ScrollData;
 };
 
 type Message = {
@@ -34,5 +44,6 @@ export {
   ContentMessageType,
   ContentMessageTypeFunction,
   Message,
-  ShowNotification
+  ShowNotification,
+  ScrollData
 };
