@@ -9,7 +9,6 @@ const fetch_bookmarks = async () => {
   if (!user_id) {
     throw new Error("User ID not found.");
   }
-
   const {
     data: bookmarks,
     error,
@@ -87,11 +86,11 @@ const delete_bookmark = async (id: string, thumbnail?: string) => {
   }
   console.log("Deleted bookmark data:", data);
   if (data) {
-    return data;
+    return data as BookmarkRow[];
   }
 };
 
-const update_bookmark = async (bookmark: BookmarkRow, oldThumbnail: string) => {
+const update_bookmark = async (bookmark: BookmarkRow, oldThumbnail?: string) => {
   const user_id = await fetch_user_id();
 
   const {
@@ -116,4 +115,17 @@ const update_bookmark = async (bookmark: BookmarkRow, oldThumbnail: string) => {
   return updatedBookmarks as BookmarkRow[];
 };
 
-export { fetch_bookmarks, process_bookmark, delete_bookmark, update_bookmark };
+const get_thumbnail_url = (thumbnail: string | null) => {
+  if (!thumbnail) return null;
+
+  const {data} = supabase.storage.from('thumbnails').getPublicUrl(thumbnail);
+  if (
+    !data.publicUrl
+  ) {
+    return null;
+  }
+
+  return data.publicUrl;
+};
+
+export { fetch_bookmarks, process_bookmark, delete_bookmark, update_bookmark, get_thumbnail_url };

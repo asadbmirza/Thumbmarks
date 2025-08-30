@@ -1,52 +1,46 @@
 import reactLogo from '@/assets/react.svg';
 import wxtLogo from '/wxt.svg';
 import './App.css';
-import { Button } from '@mui/material';
+import { Box, Button, Card, CardContent } from '@mui/material';
 import { BackgroundMessageType, Message } from '../shared/message_types';
+import Header from './header/header';
+import { Page } from './types';
+import BookmarksPage from './pages/bookmarks';
+
+
 
 
 function App() {
+  const [page, setPage] = useState<Page>('bookmarks');
 
-  const onCapture = async () => {
-    try {
-      await chrome.runtime.sendMessage<Message>({
-        type: BackgroundMessageType.CaptureScreen,
-      })
-    } catch (error) {
-      console.error("Failed to capture the page", error);
-    }
-    
-  }
-
-  const onDelete = async () => {
-    try {
-      await chrome.runtime.sendMessage<Message>({
-        type: BackgroundMessageType.DeleteBookmark,
-      })
-    } catch (error) {
-      console.error("Failed to delete the bookmark", error);
-    }
-  }
+  const renderContent = () => {
+    return (
+      <>
+        <Box sx={{ display: page === 'bookmarks' ? 'block' : 'none' }}>
+          <BookmarksPage />
+        </Box>
+        {/* <Box sx={{ display: page === 'settings' ? 'block' : 'none' }}>
+          <SettingsPage />
+        </Box>
+        <Box sx={{ display: page === 'profile' ? 'block' : 'none' }}>
+          <ProfilePage />
+        </Box> */}
+      </>
+    );
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://wxt.dev" target="_blank">
-          <img src={wxtLogo} className="logo" alt="WXT logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>dfd + sds</h1>
-      <div className="card">
-        <Button onClick={onCapture}>Capture webpage</Button>
-        <Button onClick={onDelete}>Delete Bookmark</Button>
-      </div>
-      <p className="read-the-docs">
-        Click on the WXT and React logos to learn more
-      </p>
-    </>
+    <Box sx={{ height: '100vh', 
+      display: 'flex', 
+      flexDirection: 'column' }}>
+      <Header currentPage={page} onNavigate={(page: Page) => setPage(page)} />
+      <Box sx={{ flex: 1,           // Takes remaining space after header
+        paddingX: 2, 
+        overflowY: 'auto',
+        height: 0 }}>
+        {renderContent()}
+      </Box>
+    </Box>
   );
 }
 

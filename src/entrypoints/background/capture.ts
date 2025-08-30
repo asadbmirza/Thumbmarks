@@ -16,7 +16,8 @@ const capture_webpage = async () => {
     const bookmark_to_process: BookmarkInsert = await setup_bookmark();
 
     try {
-      await process_bookmark(bookmark_to_process, captured);
+      let result = await process_bookmark(bookmark_to_process, captured);
+      return result;
     } catch (error) {
       console.error("Error processing bookmark:", error);
       trigger_show_notification(
@@ -32,6 +33,7 @@ const capture_webpage = async () => {
       3000
     );
   }
+  return;
 };
 
 export { capture_webpage };

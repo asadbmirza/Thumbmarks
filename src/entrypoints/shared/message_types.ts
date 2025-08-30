@@ -1,18 +1,37 @@
+import { BookmarkRow } from "@/types/bookmark";
 import { Result } from "./utils";
 
 enum BackgroundMessageType {
   CaptureScreen = "CAPTURE_SCREEN",
-  DeleteBookmark = "DELETE_BOOKMARK"
+  DeleteBookmark = "DELETE_BOOKMARK",
+  UpdateBookmark = "UPDATE_BOOKMARK",
+  GetBookmarks = "GET_BOOKMARKS",
+  NavigateToBookmark = "NAVIGATE_TO_BOOKMARK",
 }
 
-
 type BackgroundMessageTypeFunction = {
-  [key in BackgroundMessageType]: () => void;
+  [BackgroundMessageType.CaptureScreen]: () => Promise<BookmarkRow[] | void>;
+  [BackgroundMessageType.DeleteBookmark]: (payload: {
+    id: string;
+    thumbnail?: string;
+  }) => Promise<BookmarkRow[] | undefined>;
+  [BackgroundMessageType.UpdateBookmark]: (payload: {
+    bookmark: BookmarkRow;
+    oldThumbnail?: string;
+  }) => Promise<BookmarkRow[] | undefined>;
+  [BackgroundMessageType.GetBookmarks]: () => Promise<
+    BookmarkRow[] | undefined
+  >;
+  [BackgroundMessageType.NavigateToBookmark]: (payload: {
+    url: string;
+    scrollX: number;
+    scrollY: number;
+  }) => void;
 };
 
 enum ContentMessageType {
   ShowNotification = "SHOW_NOTIFICATION",
-  GetScrollData = "GET_SCROLL_DATA"
+  GetScrollData = "GET_SCROLL_DATA",
 }
 
 type ShowNotification = {
@@ -45,5 +64,5 @@ export {
   ContentMessageTypeFunction,
   Message,
   ShowNotification,
-  ScrollData
+  ScrollData,
 };
