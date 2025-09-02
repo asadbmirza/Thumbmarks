@@ -2,16 +2,19 @@ import { ensure_user_session } from "@/lib/supabase/setup/authenticate";
 import {
   BackgroundMessageType,
   BackgroundMessageTypeFunction,
+  ContentMessageType,
   Message,
 } from "../shared/message_types";
 import { capture_webpage } from "./capture";
 import {
   delete_bookmark,
   fetch_bookmarks,
+  process_bookmark,
   update_bookmark,
 } from "@/lib/supabase/operations/bookmark";
 import { BookmarkRow } from "@/types/bookmark";
 import navigate_to_bookmark from "./navigate";
+import get_tab_data from "./bookmark";
 
 const messageTypeFunction: BackgroundMessageTypeFunction = {
   [BackgroundMessageType.CaptureScreen]: async () => await capture_webpage(),
@@ -20,8 +23,13 @@ const messageTypeFunction: BackgroundMessageTypeFunction = {
   [BackgroundMessageType.UpdateBookmark]: async (payload) =>
     await update_bookmark(payload.bookmark, payload?.oldThumbnail),
   [BackgroundMessageType.GetBookmarks]: async () => await fetch_bookmarks(),
+  [BackgroundMessageType.ProcessBookmark]: async (payload) =>
+    await process_bookmark(payload.bookmark, payload.captured),
   [BackgroundMessageType.NavigateToBookmark]: (payload) =>
     navigate_to_bookmark(payload.url, payload.scrollX, payload.scrollY),
+  [BackgroundMessageType.GetTabData]: async () => {
+    return await get_tab_data();
+  }
 };
 
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -46,11 +54,14 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     const user_id = await ensure_user_session();
     if (info.menuItemId === "saveVisualBookmark" && user_id) {
       try {
-        const newBookmarks: BookmarkRow[] = (await capture_webpage()) ?? [];
-
+        const captured: string = (await capture_webpage()) ?? "";
+        const tabData = await get_tab_data();
         chrome.runtime.sendMessage({
-          type: BackgroundMessageType.CaptureScreen,
-          payload: newBookmarks,
+          type: "SETUP_BOOKMARK",
+          payload: {
+            captured,
+            tabData
+          },
         });
 
       } catch (error) {

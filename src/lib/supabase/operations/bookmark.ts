@@ -35,7 +35,7 @@ const process_bookmark = async (bookmark: BookmarkInsert, captured: string) => {
     console.log("thumbnail:", thumbnail);
     await save_image(thumbnail, path);
 
-    const bookmarks: BookmarkRow[] = await insert_bookmark({
+    const bookmarks: BookmarkRow[] = await upsert_bookmark({
       ...bookmark,
       thumbnail: path,
       user_id: user_id,
@@ -47,12 +47,12 @@ const process_bookmark = async (bookmark: BookmarkInsert, captured: string) => {
   }
 };
 
-const insert_bookmark = async (bookmark: BookmarkInsert) => {
+const upsert_bookmark = async (bookmark: BookmarkInsert) => {
   const {
     data: bookmarks,
     error,
     status,
-  } = await supabase.from("bookmarks").insert(bookmark).select();
+  } = await supabase.from("bookmarks").upsert(bookmark).select();
 
   if (error) {
     throw new Error(`Supabase error (${status}): ${error.message}`);
@@ -92,14 +92,14 @@ const delete_bookmark = async (id: string, thumbnail?: string) => {
 
 const update_bookmark = async (bookmark: BookmarkRow, oldThumbnail?: string) => {
   const user_id = await fetch_user_id();
-
+  const { url, ...updateData } = bookmark; // Exclude URL from updates
   const {
     data: updatedBookmarks,
     error,
     status,
   } = await supabase
     .from("bookmarks")
-    .update(bookmark)
+    .update(updateData)
     .eq("id", bookmark.id)
     .eq("user_id", user_id)
     .select();
@@ -115,17 +115,17 @@ const update_bookmark = async (bookmark: BookmarkRow, oldThumbnail?: string) => 
   return updatedBookmarks as BookmarkRow[];
 };
 
-const get_thumbnail_url = (thumbnail: string | null) => {
-  if (!thumbnail) return null;
+const get_thumbnail_url = (thumbnail: string | undefined | null) => {
+  if (!thumbnail) return undefined;
 
   const {data} = supabase.storage.from('thumbnails').getPublicUrl(thumbnail);
   if (
     !data.publicUrl
   ) {
-    return null;
+    return undefined;
   }
 
   return data.publicUrl;
 };
 
-export { fetch_bookmarks, process_bookmark, delete_bookmark, update_bookmark, get_thumbnail_url };
+export { fetch_bookmarks, process_bookmark, upsert_bookmark, delete_bookmark, update_bookmark, get_thumbnail_url };

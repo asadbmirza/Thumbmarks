@@ -5,7 +5,7 @@ import {
   ScrollData,
 } from "../shared/message_types";
 
-const setup_bookmark = async (): Promise<BookmarkInsert> => {
+const get_tab_data = async (): Promise<BookmarkInsert> => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const url = tab?.url || "";
   const title = tab?.title || "";
@@ -57,4 +57,4 @@ const get_scroll_data = (tab: chrome.tabs.Tab): Promise<ScrollData> => {
   });
 };
 
-export default setup_bookmark;
+export default get_tab_data;

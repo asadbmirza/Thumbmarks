@@ -1,4 +1,4 @@
-import { BookmarkRow } from "@/types/bookmark";
+import { BookmarkInsert, BookmarkRow } from "@/types/bookmark";
 import { Result } from "./utils";
 
 enum BackgroundMessageType {
@@ -6,11 +6,13 @@ enum BackgroundMessageType {
   DeleteBookmark = "DELETE_BOOKMARK",
   UpdateBookmark = "UPDATE_BOOKMARK",
   GetBookmarks = "GET_BOOKMARKS",
+  ProcessBookmark = "PROCESS_BOOKMARK",
   NavigateToBookmark = "NAVIGATE_TO_BOOKMARK",
+  GetTabData = "GET_TAB_DATA"
 }
 
 type BackgroundMessageTypeFunction = {
-  [BackgroundMessageType.CaptureScreen]: () => Promise<BookmarkRow[] | void>;
+  [BackgroundMessageType.CaptureScreen]: () => Promise<string | void>;
   [BackgroundMessageType.DeleteBookmark]: (payload: {
     id: string;
     thumbnail?: string;
@@ -21,12 +23,17 @@ type BackgroundMessageTypeFunction = {
   }) => Promise<BookmarkRow[] | undefined>;
   [BackgroundMessageType.GetBookmarks]: () => Promise<
     BookmarkRow[] | undefined
-  >;
+    >;
+  [BackgroundMessageType.ProcessBookmark]: (payload: {
+    bookmark: BookmarkRow;
+    captured: string;
+  }) => Promise<BookmarkRow[] | undefined>;
   [BackgroundMessageType.NavigateToBookmark]: (payload: {
     url: string;
     scrollX: number;
     scrollY: number;
   }) => void;
+  [BackgroundMessageType.GetTabData]: () => Promise<BookmarkInsert | undefined>;
 };
 
 enum ContentMessageType {
@@ -53,7 +60,7 @@ type ContentMessageTypeFunction = {
 };
 
 type Message = {
-  type: BackgroundMessageType | ContentMessageType;
+  type: BackgroundMessageType | ContentMessageType | string;
   payload?: any;
 };
 
