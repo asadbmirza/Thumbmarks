@@ -1,7 +1,6 @@
 import { BackgroundMessageType } from "@/entrypoints/shared/message_types";
-import { BookmarkRow } from "@/types/bookmark";
-import { Box } from "@mui/material";
-import { useEffect } from "react";
+import { BookmarkInsert, BookmarkRow } from "@/types/bookmark";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import BookmarkCard from "../components/bookmarkCard";
 import { Page } from "../types";
 
@@ -11,17 +10,15 @@ const BookmarksPage = ({
   loading,
   error,
   setError,
-  setPage
+  upsertPage,
 }: {
   bookmarks: BookmarkRow[];
   setBookmarks: React.Dispatch<React.SetStateAction<BookmarkRow[]>>;
   loading: boolean;
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  setPage: (page: Page) => void;
+  upsertPage: (bookmark: BookmarkInsert, captured: string) => void;
 }) => {
-
-
   const handleUpdateBookmark = async (
     updatedBookmark: BookmarkRow,
     oldThumbnail?: string
@@ -79,20 +76,25 @@ const BookmarksPage = ({
 
   const onCapture = async () => {
     try {
-      const response = await chrome.runtime.sendMessage({
+      const responseCaptured = await chrome.runtime.sendMessage({
         type: BackgroundMessageType.CaptureScreen,
       });
 
-      if (response.status === "done") {
-        setBookmarks((prev) => [response.data, ...prev]);
-      } else {
-        setError(
-          response.error instanceof Error
-            ? response.error.message
-            : "Failed to capture screen"
+      if (responseCaptured.status === "error") {
+        throw new Error(
+          responseCaptured.error?.message || "Failed to capture screen"
         );
-        console.error("Error capturing screen:", response.error);
       }
+      const responseTabData = await chrome.runtime.sendMessage({
+        type: BackgroundMessageType.GetTabData,
+      });
+      if (responseTabData.status === "error") {
+        throw new Error(
+          responseTabData.error?.message || "Failed to get tab data"
+        );
+      }
+
+      upsertPage(responseTabData.data, responseCaptured.data);
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to capture screen"
@@ -101,16 +103,69 @@ const BookmarksPage = ({
     }
   };
 
-  console.log("Current bookmarks:", bookmarks);
-
   return (
-    <Box display="flex" flexDirection="column" gap={2}>
-      <h2>Bookmarks</h2>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error}</p>}
-      {bookmarks.map((bookmark) => (
-        <BookmarkCard key={bookmark.id} bookmark={bookmark} />
-      ))}
+    <Box display="flex" flexDirection="column" height={"100%"}>
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: "auto",
+          paddingBottom: 2,
+          minHeight: 0,
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Your Thumbmarks
+        </Typography>
+
+        {loading && (
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            flexDirection="column"
+            sx={{ py: 4 }}
+          >
+            <CircularProgress size={64} />
+            <Typography>Loading Thumbmarks...</Typography>
+          </Box>
+        )}
+
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            Error: {error}
+          </Typography>
+        )}
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {bookmarks
+            .slice()
+            .reverse()
+            .map((bookmark) => (
+              <BookmarkCard
+                key={bookmark.id}
+                bookmark={bookmark}
+                setError={setError}
+              />
+            ))}
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          py: 1,
+          backgroundColor: "background.paper",
+          display: "flex",
+        }}
+      >
+        <Button
+          onClick={onCapture}
+          variant="contained"
+          color="secondary"
+          sx={{ width: "100%" }}
+        >
+          + Capture Thumbmark
+        </Button>
+      </Box>
     </Box>
   );
 };

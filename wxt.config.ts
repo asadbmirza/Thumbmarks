@@ -7,7 +7,7 @@ export default defineConfig({
   manifest: {
     name: "Thumbmark's - Visual Bookmarks",
     version: "1.0.0",
-    permissions: ["storage", "scripting", "activeTab", "tabs", "contextMenus", "sidePanel"],
+    permissions: ["storage", "scripting", "activeTab", "tabs", "contextMenus", "sidePanel", "notifications", "downloads"],
     host_permissions: ["<all_urls>"],
     background: {
       service_worker: "src/entrypoints/background/index.ts",

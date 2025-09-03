@@ -32,7 +32,6 @@ const process_bookmark = async (bookmark: BookmarkInsert, captured: string) => {
     if (!thumbnail) {
       throw new Error("Failed to create thumbnail.");
     }
-    console.log("thumbnail:", thumbnail);
     await save_image(thumbnail, path);
 
     const bookmarks: BookmarkRow[] = await upsert_bookmark({
@@ -84,7 +83,6 @@ const delete_bookmark = async (id: string, thumbnail?: string) => {
       throw new Error(`Failed to delete thumbnail: ${storageError.message}`);
     }
   }
-  console.log("Deleted bookmark data:", data);
   if (data) {
     return data as BookmarkRow[];
   }

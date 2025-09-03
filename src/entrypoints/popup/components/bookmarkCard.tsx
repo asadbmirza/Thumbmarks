@@ -12,11 +12,11 @@ import {
 } from "@mui/material";
 import { ANIMATION_DURATION } from "../theme";
 
-const BookmarkCard = ({ bookmark }: { bookmark: BookmarkRow }) => {
+const BookmarkCard = ({ bookmark, setError }: { bookmark: BookmarkRow, setError: (message: string) => void }) => {
   const thumbnailUrl = get_thumbnail_url(bookmark.thumbnail);
 
-  const handleNavigation = () => {
-    chrome.runtime.sendMessage({
+  const handleNavigation = async () => {
+    const response = await chrome.runtime.sendMessage({
       type: BackgroundMessageType.NavigateToBookmark,
       payload: {
         url: bookmark.url,
@@ -24,6 +24,13 @@ const BookmarkCard = ({ bookmark }: { bookmark: BookmarkRow }) => {
         scrollY: bookmark.scroll_y,
       },
     });
+
+    if (response.status === "error") {
+      console.log(response)
+      console.error('Navigation failed:', response.error);
+      const extraMsg = " Note: Certain pages do not allow for scripting the scroll position"
+      setError(response.error.message + extraMsg || 'Navigation failed.' + extraMsg);
+    }
   };
 
   return (

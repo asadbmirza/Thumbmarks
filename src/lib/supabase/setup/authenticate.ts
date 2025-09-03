@@ -6,7 +6,6 @@ const ensure_user_session = async () => {
   } = await supabase.auth.getSession();
   if (session) {
     await supabase.auth.setSession(session);
-    console.log("Session restored:", session.user.id);
   } else {
     console.warn("No session found, user not signed in");
   }

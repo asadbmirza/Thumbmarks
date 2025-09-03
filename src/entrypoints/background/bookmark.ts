@@ -10,7 +10,6 @@ const get_tab_data = async (): Promise<BookmarkInsert> => {
   const url = tab?.url || "";
   const title = tab?.title || "";
   const data = await get_scroll_data(tab);
-  console.log("Scroll dataaaaa:", data);
   const { scrollX: scroll_x, scrollY: scroll_y } = data;
 
   return {
@@ -29,7 +28,6 @@ const get_scroll_data = (tab: chrome.tabs.Tab): Promise<ScrollData> => {
     windowHeight: 0,
   };
   if (!tab?.id) {
-    console.log("Error finding tab");
     return Promise.resolve(default_scroll_data);
   }
 
@@ -40,7 +38,6 @@ const get_scroll_data = (tab: chrome.tabs.Tab): Promise<ScrollData> => {
         { type: ContentMessageType.GetScrollData },
         (response: {data: ScrollData, status: string}) => {
           if (chrome.runtime.lastError) {
-            console.error("Error sending message:", chrome.runtime.lastError);
             return resolve(default_scroll_data);
           }
           if (response.status === "done" && response.data) {

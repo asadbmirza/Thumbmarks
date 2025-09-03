@@ -7,6 +7,7 @@ import {
   Button,
   Chip,
   FormGroup,
+  FormHelperText,
   FormLabel,
   TextField,
   Typography,
@@ -54,7 +55,7 @@ const UpsertBookmarkPage = ({
     e.preventDefault();
     const result = await chrome.runtime.sendMessage({
       type: BackgroundMessageType.ProcessBookmark,
-      payload: {bookmark, captured},
+      payload: { bookmark, captured },
     });
     console.log("upsert bookmark response:", result);
     if (result.status == "done") {
@@ -81,8 +82,16 @@ const UpsertBookmarkPage = ({
         height: "100%",
       }}
     >
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Typography>Edit Thumbmark</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          minHeight: 0,
+          overflowY: "auto",
+        }}
+      >
+        <Typography variant="h6">Edit Thumbmark</Typography>
         <TextField
           label="Title"
           name="title"
@@ -169,6 +178,28 @@ const UpsertBookmarkPage = ({
           rows={4}
         />
         <FormGroup>
+          <Box display="flex" gap={2}>
+            <TextField
+              label="X Position"
+              name="scroll_x"
+              value={bookmark.scroll_x}
+              disabled
+                placeholder="0"
+              />
+              <TextField
+                label="Y Position"
+                name="scroll_y"
+                value={bookmark.scroll_y}
+                disabled
+                placeholder="0"
+              />
+          </Box>
+          <FormHelperText sx={{ textAlign: "center"}}>
+            Position of the page when captured in pixels, note that some pages
+            may not allow scrolling due to scripting limitations.
+          </FormHelperText>
+        </FormGroup>
+        <FormGroup>
           <FormLabel>Tags</FormLabel>
           <Box>
             <Chip
@@ -188,8 +219,6 @@ const UpsertBookmarkPage = ({
           display: "flex",
           justifyContent: "flex-end",
           gap: 1,
-          position: "sticky",
-          bottom: 0,
           bgcolor: "background.paper",
           py: 1,
         }}
