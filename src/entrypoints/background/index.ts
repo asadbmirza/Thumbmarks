@@ -44,7 +44,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
   chrome.contextMenus.create({
     id: "saveVisualBookmark",
-    title: "Save Visual Bookmark",
+    title: "Save Thumbmark",
     contexts: ["page", "selection", "link"],
   });
 

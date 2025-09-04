@@ -23,6 +23,7 @@ const UpsertBookmarkPage = ({
   setPage,
   bookmarks,
   setBookmarks,
+  setNotification
 }: {
   bookmark: BookmarkInsert | BookmarkRow;
   captured: string | null;
@@ -31,6 +32,7 @@ const UpsertBookmarkPage = ({
   setPage: (page: Page) => void;
   bookmarks: BookmarkRow[];
   setBookmarks: (bookmarks: BookmarkRow[]) => void;
+  setNotification: (message: string | null) => void;
 }) => {
   const handleImageChange = async () => {
     const image = await chrome.runtime.sendMessage({
@@ -62,6 +64,7 @@ const UpsertBookmarkPage = ({
       setBookmarks([...bookmarks, ...result.data]);
     }
     setPage("bookmarks");
+    setNotification("Bookmarks updated!");
   };
 
   const handleDiscard = (
@@ -71,6 +74,7 @@ const UpsertBookmarkPage = ({
     setBookmarkSetup(null);
     setCapturedImage(null);
     setPage("bookmarks");
+    setNotification("Bookmark discarded!");
   };
 
   return (

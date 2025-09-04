@@ -1,5 +1,5 @@
 import { BookmarkInsert, BookmarkRow } from "@/types/bookmark";
-import { Box, Typography } from "@mui/material";
+import { Alert, Box, Snackbar, Typography } from "@mui/material";
 import { BackgroundMessageType, Message } from "../shared/message_types";
 import "./App.css";
 import Header from "./header/header";
@@ -17,10 +17,34 @@ function App() {
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>([]);
   const [bookmarksLoading, setBookmarksLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
 
   if (error) {
     setTimeout(() => setError(null), 5000);
   }
+
+  const requestActiveTab = async () => {
+    const [currentTab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+
+    if (!currentTab?.id) {
+      setError("No active tab found");
+      return false;
+    }
+
+    // Execute a tiny script to "activate" the permission for background
+    await chrome.scripting.executeScript({
+      target: { tabId: currentTab.id },
+      func: () => {
+        // This empty function execution transfers activeTab to background
+        return true;
+      },
+    });
+
+    return true;
+  };
 
   const fetchData = async () => {
     try {
@@ -47,14 +71,47 @@ function App() {
     }
   };
 
+  const handleCapture = async () => {
+    try {
+      const responseCaptured = await chrome.runtime.sendMessage({
+        type: BackgroundMessageType.CaptureScreen,
+      });
+
+      if (responseCaptured.status === "error") {
+        const errMsg =
+          "Some pages don't allow captures from the popup menu on the first try. Try capturing the thumbmark from the context menu(right click the page, then save)! ";
+        throw new Error(
+          errMsg
+        );
+      }
+      const responseTabData = await chrome.runtime.sendMessage({
+        type: BackgroundMessageType.GetTabData,
+      });
+      if (responseTabData.status === "error") {
+        throw new Error(
+          responseTabData.error?.message || "Failed to get tab data"
+        );
+      }
+      setNotification("Thumbmark captured!");
+      setBookmarkSetup(responseTabData.data);
+      setCapturedImage(responseCaptured.data);
+      setPage("upsert");
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to capture screen"
+      );
+      console.error("Error sending message:", error);
+    }
+  };
+
   const handlePendingBookmark = async () => {
     const { pendingBookmark } = await chrome.storage.local.get(
       "pendingBookmark"
     );
-    console.log("Pending bookmark found:", pendingBookmark);
     if (pendingBookmark) {
       const { tabData, captured } = pendingBookmark;
       if (tabData && captured) {
+        setNotification("Thumbmark captured!");
         setBookmarkSetup(tabData);
         setCapturedImage(captured);
         setPage("upsert");
@@ -86,6 +143,12 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      setNotification(error);
+    }
+  }, [error]);
+
   const renderContent = () => {
     return (
       <>
@@ -101,11 +164,7 @@ function App() {
             loading={bookmarksLoading}
             error={error}
             setError={setError}
-            upsertPage={(bookmark: BookmarkInsert, captured: string) => {
-              setBookmarkSetup(bookmark);
-              setCapturedImage(captured);
-              setPage("upsert");
-            }}
+            handleCapture={handleCapture}
           />
         </Box>
         <Box
@@ -120,6 +179,7 @@ function App() {
               setPage={setPage}
               bookmarks={bookmarks}
               setBookmarks={setBookmarks}
+              setNotification={setNotification}
             />
           ) : (
             <Box>
@@ -136,8 +196,29 @@ function App() {
       </>
     );
   };
+  console.log("error: ", error, Boolean(error));
   return (
     <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+      <Snackbar
+        open={Boolean(notification)}
+        autoHideDuration={Boolean(error) ? null : 5000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+         onClose={() => {
+          setNotification(null);
+          setError(null);
+        }}
+      >
+        <Alert
+          onClose={() => {
+            setNotification(null);
+            setError(null);
+          }}
+          severity={error ? "error" : "success"}
+          sx={{ width: "100%" }}
+        >
+          {notification}
+        </Alert>
+      </Snackbar>
       <Header currentPage={page} onNavigate={(page: Page) => setPage(page)} />
       <Box
         sx={{
