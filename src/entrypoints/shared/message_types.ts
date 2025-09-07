@@ -1,5 +1,6 @@
-import { BookmarkInsert, BookmarkRow } from "@/types/bookmark";
+import { BookmarkInsert, BookmarkRow } from "@/types/bookmark.types";
 import { Result } from "./utils";
+import { BookmarkTagRow } from "@/types/bookmark_tags.types";
 
 enum BackgroundMessageType {
   CaptureScreen = "CAPTURE_SCREEN",
@@ -8,7 +9,11 @@ enum BackgroundMessageType {
   GetBookmarks = "GET_BOOKMARKS",
   ProcessBookmark = "PROCESS_BOOKMARK",
   NavigateToBookmark = "NAVIGATE_TO_BOOKMARK",
-  GetTabData = "GET_TAB_DATA"
+  GetTabData = "GET_TAB_DATA",
+  GetBookmarkTags = "GET_BOOKMARK_TAGS",
+  InsertBookmarkTag = "INSERT_BOOKMARK_TAG",
+  DecrementBookmarkTag = "DECREMENT_BOOKMARK_TAG",
+  FetchAllUserTags = "FETCH_ALL_USER_TAGS",
 }
 
 type BackgroundMessageTypeFunction = {
@@ -23,10 +28,10 @@ type BackgroundMessageTypeFunction = {
   }) => Promise<BookmarkRow[] | undefined>;
   [BackgroundMessageType.GetBookmarks]: () => Promise<
     BookmarkRow[] | undefined
-    >;
+  >;
   [BackgroundMessageType.ProcessBookmark]: (payload: {
     bookmark: BookmarkRow;
-    captured: string;
+    captured?: string;
   }) => Promise<BookmarkRow[] | undefined>;
   [BackgroundMessageType.NavigateToBookmark]: (payload: {
     url: string;
@@ -34,6 +39,16 @@ type BackgroundMessageTypeFunction = {
     scrollY: number;
   }) => void;
   [BackgroundMessageType.GetTabData]: () => Promise<BookmarkInsert | undefined>;
+  [BackgroundMessageType.GetBookmarkTags]: (payload: { bookmark_id: string }) => Promise<BookmarkTagRow[]>;
+  [BackgroundMessageType.InsertBookmarkTag]: (payload: {
+    bookmark_id: string;
+    label: string;
+  }) => Promise<BookmarkTagRow[]>;
+  [BackgroundMessageType.DecrementBookmarkTag]: (payload: {
+    existing_row: BookmarkTagRow;
+    bookmark_id: string;
+  }) => Promise<BookmarkTagRow[] | undefined>;
+  [BackgroundMessageType.FetchAllUserTags]: (payload?: { filter: string[] }) => Promise<BookmarkTagRow[]>;
 };
 
 enum ContentMessageType {
@@ -70,6 +85,6 @@ export {
   ContentMessageType,
   ContentMessageTypeFunction,
   Message,
-  ShowNotification,
   ScrollData,
+  ShowNotification,
 };

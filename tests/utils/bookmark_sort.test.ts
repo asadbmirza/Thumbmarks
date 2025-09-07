@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { BookmarkRow } from "@/types/bookmark";
 import { sort_bookmarks, SortedStates } from "@/entrypoints/shared/utils";
+import { BookmarkRow } from "@/types/bookmark.types";
+import { describe, expect, it } from "vitest";
 
 describe("sort_bookmarks", () => {
   // Mock bookmark data for testing

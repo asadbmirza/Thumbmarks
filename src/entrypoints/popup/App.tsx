@@ -1,4 +1,5 @@
-import { BookmarkInsert, BookmarkRow } from "@/types/bookmark";
+import { BookmarkInsert, BookmarkRow } from "@/types/bookmark.types";
+import { BookmarkTagRow } from "@/types/bookmark_tags.types";
 import { Alert, Box, Snackbar, Typography } from "@mui/material";
 import { BackgroundMessageType, Message } from "../shared/message_types";
 import "./App.css";
@@ -18,35 +19,77 @@ function App() {
   const [bookmarksLoading, setBookmarksLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
+  const [bookmarksWithTags, setBookmarksWithTags] = useState<
+    Record<string, BookmarkTagRow[]>
+  >({});
 
-  if (error) {
-    setTimeout(() => setError(null), 5000);
-  }
 
-  const requestActiveTab = async () => {
-    const [currentTab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
+  // Single function to fetch tags for a bookmark
+  const fetchBookmarkTags = async (bookmarkId: string) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: BackgroundMessageType.GetBookmarkTags,
+        payload: { bookmark_id: bookmarkId },
+      });
 
-    if (!currentTab?.id) {
-      setError("No active tab found");
-      return false;
+
+      if (response.status === "done" && response.data) {
+        setBookmarksWithTags((prev) => ({
+          ...prev,
+          [bookmarkId]: response.data,
+        }));
+      }
+    } catch (error) {
+      setError("Failed to load tags");
     }
-
-    // Execute a tiny script to "activate" the permission for background
-    await chrome.scripting.executeScript({
-      target: { tabId: currentTab.id },
-      func: () => {
-        // This empty function execution transfers activeTab to background
-        return true;
-      },
-    });
-
-    return true;
   };
 
-  const fetchData = async () => {
+  const handleInsertTag = async (bookmarkId: string, label: string) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: BackgroundMessageType.InsertBookmarkTag,
+        payload: { bookmark_id: bookmarkId, label },
+      });
+
+      if (response.status === "done" && response.data) {
+        setBookmarksWithTags((prev) => ({
+          ...prev,
+          [bookmarkId]: [response.data[0], ...(prev[bookmarkId] || [])],
+        }));
+      }
+    } catch (error) {
+      setError("Failed to add tag");
+    }
+  };
+
+  const handleDecrementTag = async (
+    bookmarkId: string,
+    existingRow: BookmarkTagRow
+  ) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: BackgroundMessageType.DecrementBookmarkTag,
+        payload: { existing_row: existingRow, bookmark_id: bookmarkId },
+      });
+
+      if (response.status === "done") {
+        fetchBookmarkTags(bookmarkId);
+      }
+    } catch (error) {
+      setError("Failed to remove tag");
+    }
+  };
+
+  // Load all tags when bookmarks change
+  useEffect(() => {
+    bookmarks.forEach((bookmark) => {
+      if (!bookmarksWithTags[bookmark.id]) {
+        fetchBookmarkTags(bookmark.id);
+      }
+    });
+  }, [bookmarks]);
+
+  const fetchBookmarks = async () => {
     try {
       setBookmarksLoading(true);
       setError(null);
@@ -80,9 +123,7 @@ function App() {
       if (responseCaptured.status === "error") {
         const errMsg =
           "Some pages don't allow captures from the popup menu on the first try. Try capturing the thumbmark from the context menu(right click the page, then save)! ";
-        throw new Error(
-          errMsg
-        );
+        throw new Error(errMsg);
       }
       const responseTabData = await chrome.runtime.sendMessage({
         type: BackgroundMessageType.GetTabData,
@@ -99,6 +140,37 @@ function App() {
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to capture screen"
+      );
+      console.error("Error sending message:", error);
+    }
+  };
+
+  const handleUpdateBookmark = (bookmark: BookmarkRow) => {
+    setBookmarkSetup(bookmark);
+    setPage("upsert");
+  };
+
+  const handleDeleteBookmark = async (id: string, thumbnail?: string) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: BackgroundMessageType.DeleteBookmark,
+        payload: { id, thumbnail },
+      });
+
+      if (response.status === "done") {
+        setBookmarks((prev) => prev.filter((b) => b.id !== id));
+        setNotification("Bookmark deleted!");
+      } else {
+        setError(
+          response.error instanceof Error
+            ? response.error.message
+            : "Failed to delete bookmark"
+        );
+        console.error("Error deleting bookmark:", response.error);
+      }
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to delete bookmark"
       );
       console.error("Error sending message:", error);
     }
@@ -121,7 +193,7 @@ function App() {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchBookmarks();
   }, []);
 
   useEffect(() => {
@@ -165,6 +237,9 @@ function App() {
             error={error}
             setError={setError}
             handleCapture={handleCapture}
+            handleUpdateBookmark={handleUpdateBookmark}
+            handleDeleteBookmark={handleDeleteBookmark}
+            bookmarksWithTags={bookmarksWithTags}
           />
         </Box>
         <Box
@@ -180,6 +255,9 @@ function App() {
               bookmarks={bookmarks}
               setBookmarks={setBookmarks}
               setNotification={setNotification}
+              attachedTags={bookmarkSetup?.id ? bookmarksWithTags[bookmarkSetup.id].slice() : []}
+              insertTag={handleInsertTag}
+              decrementTag={handleDecrementTag}
             />
           ) : (
             <Box>
@@ -187,23 +265,23 @@ function App() {
             </Box>
           )}
         </Box>
-        {/* <Box sx={{ display: page === 'settings' ? 'block' : 'none' }}>
-          <SettingsPage />
-        </Box>
-        <Box sx={{ display: page === 'profile' ? 'block' : 'none' }}>
-          <ProfilePage />
-        </Box> */}
       </>
     );
   };
-  console.log("error: ", error, Boolean(error));
   return (
-    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "background.default",
+      }}
+    >
       <Snackbar
         open={Boolean(notification)}
         autoHideDuration={Boolean(error) ? null : 5000}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
-         onClose={() => {
+        onClose={() => {
           setNotification(null);
           setError(null);
         }}

@@ -3,6 +3,7 @@ import {
   fetch_bookmarks,
   process_bookmark,
   update_bookmark,
+  upsert_bookmark,
 } from "@/lib/supabase/operations/bookmark";
 import { ensure_user_session } from "@/lib/supabase/setup/authenticate";
 import {
@@ -13,6 +14,7 @@ import {
 import get_tab_data from "./bookmark";
 import { capture_webpage } from "./capture";
 import navigate_to_bookmark from "./navigate";
+import { insert_bookmark_tag, decrement_bookmark_tag_count, fetch_bookmark_tags, fetch_all_user_tags } from "@/lib/supabase/operations/bookmark_tags";
 
 const messageTypeFunction: BackgroundMessageTypeFunction = {
   [BackgroundMessageType.CaptureScreen]: async () => await capture_webpage(),
@@ -22,12 +24,30 @@ const messageTypeFunction: BackgroundMessageTypeFunction = {
     await update_bookmark(payload.bookmark, payload?.oldThumbnail),
   [BackgroundMessageType.GetBookmarks]: async () => await fetch_bookmarks(),
   [BackgroundMessageType.ProcessBookmark]: async (payload) =>
-    await process_bookmark(payload.bookmark, payload.captured),
+    {
+      if (!payload.captured) {
+        return await upsert_bookmark(payload.bookmark);
+      }
+      return await process_bookmark(payload.bookmark, payload.captured);
+    },
   [BackgroundMessageType.NavigateToBookmark]: (payload) =>
     navigate_to_bookmark(payload.url, payload.scrollX, payload.scrollY),
   [BackgroundMessageType.GetTabData]: async () => {
-    return await get_tab_data();
+    return await get_tab_data(); 
   },
+  [BackgroundMessageType.GetBookmarkTags]: async (payload) => {
+    return await fetch_bookmark_tags(payload.bookmark_id);
+  },
+  [BackgroundMessageType.InsertBookmarkTag]: async (payload) => {
+    return await insert_bookmark_tag(payload.bookmark_id, payload.label);
+  },
+  [BackgroundMessageType.DecrementBookmarkTag]: async (payload) => {
+    return await decrement_bookmark_tag_count(payload.existing_row, payload.bookmark_id);
+  },
+  [BackgroundMessageType.FetchAllUserTags]: async (payload?) => {
+    return await fetch_all_user_tags(payload?.filter);
+  },
+    
 };
 
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -85,7 +105,6 @@ export default defineBackground(() => {
           const handler =
             messageTypeFunction[message.type as BackgroundMessageType];
           let returnValue = null;
-          console.log("Message received:", message);
 
           if (handler && message?.payload) {
             returnValue = await handler(message.payload);

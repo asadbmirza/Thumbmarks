@@ -1,10 +1,9 @@
 import {
   fetch_bookmarks,
-  process_bookmark,
   upsert_bookmark,
 } from "@/lib/supabase/operations/bookmark";
 import supabase from "@/lib/supabase/setup/supabase_init";
-import { BookmarkInsert, BookmarkRow } from "@/types/bookmark";
+import { BookmarkInsert } from "@/types/bookmark.types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/supabase/setup/supabase_init", () => ({

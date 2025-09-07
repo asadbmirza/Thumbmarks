@@ -18,9 +18,6 @@ const Header = ({currentPage, onNavigate} : {currentPage: Page, onNavigate: (pag
                     <IconButton sx={{color: "text.main"}}  onClick={() => onNavigate('profile')}>
                         <AccountCircle />
                     </IconButton>
-                    <IconButton sx={{color: "text.main"}} onClick={() => onNavigate('settings')}>
-                        <Settings />
-                    </IconButton>
                 </Box>
             </Toolbar>
         </AppBar>

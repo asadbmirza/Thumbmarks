@@ -1,4 +1,4 @@
-import { BookmarkInsert } from "@/types/bookmark";
+import { BookmarkInsert } from "@/types/bookmark.types";
 import {
   ContentMessageType,
   Message,
@@ -36,7 +36,7 @@ const get_scroll_data = (tab: chrome.tabs.Tab): Promise<ScrollData> => {
       chrome.tabs.sendMessage<Message>(
         tab.id as number,
         { type: ContentMessageType.GetScrollData },
-        (response: {data: ScrollData, status: string}) => {
+        (response: { data: ScrollData; status: string }) => {
           if (chrome.runtime.lastError) {
             return resolve(default_scroll_data);
           }
