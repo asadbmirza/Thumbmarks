@@ -15,9 +15,9 @@ const Header = ({currentPage, onNavigate} : {currentPage: Page, onNavigate: (pag
                     Thumbmarks
                 </Typography>
                 <Box>
-                    <IconButton sx={{color: "text.main"}}  onClick={() => onNavigate('profile')}>
+                    {/* <IconButton sx={{color: "text.main"}}  onClick={() => onNavigate('profile')}>
                         <AccountCircle />
-                    </IconButton>
+                    </IconButton> */}
                 </Box>
             </Toolbar>
         </AppBar>
