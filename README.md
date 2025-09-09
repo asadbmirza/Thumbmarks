@@ -7,17 +7,27 @@ Thumbmark is a browser extension that helps you save and organize web content vi
 ## Features
 
 ### One-Click Capture
-Capture a screenshot of the **visible portion** of a webpage with a single click of the extension icon. The extension also automatically grabs the page's URL, location and title.
-[./images/Capture\ Current\ Tab]
+Capture a screenshot of the **visible portion** of a webpage with a single click of the extension icon. The extension also automatically grabs the page's URL, location and title. This can also be done from the context menu
+
+![Capture Current Tab](./images/Capture%20Current%20Tab.png)
+
+![Context Menu](./images/Context%20Menu.png)
 
 ### Visual Gallery
 Your saved bookmarks are displayed in a clean gallery view, represented by their screenshot thumbnails and titles. Clicking on a bookmark opens the original URL in a new tab at the saved location.
 
+![Bookmarks Saved](./images/Bookmarks%20Saved.png)
+
 ### Smart Organization
 Add notes and tags to your bookmarks to add essential context and make them more useful than just an image. The flexible tagging system allows for easier categorization than rigid, folder-based systems.
 
+![Add Tags](./images/Add%20Tags.png)
+
 ### Quick Search
 Easily find a specific bookmark using the built-in search bar, which filters by title, notes, or tags as you type.
+
+![Filters](./images/Filters.png)
+
 
 ### Portable HTML Export(coming soon)
 Generate a single HTML file containing all of your saved bookmarks. This self-contained file can be opened in any browser, giving you full control and portability of your curated content.
