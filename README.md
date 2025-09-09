@@ -43,3 +43,8 @@ Generate a single HTML file containing all of your saved bookmarks. This self-co
 * **Inefficient Retrieval**: Scrolling through hundreds or thousands of text links can be slow. Visual cues combined with quick search make finding what you need faster and easier.
 * **Lack of Portability**: Bookmarks can be locked into your browser's ecosystem, making them difficult to share or back up. The HTML export feature gives you a shareable and self-contained backup of your data.
 * **"Death by a Thousand Tabs"**: Many users keep tabs open as a form of "bookmarking," which can slow down the browser. Thumbmark provides an efficient place to store interesting pages without keeping them as active tabs, improving performance and productivity.
+
+---
+
+## Privacy Policy
+Please see [PRIVACY.md](./PRIVACY.md) for the full privacy policy.
