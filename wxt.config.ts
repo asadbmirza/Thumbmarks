@@ -14,8 +14,6 @@ export default defineConfig({
       "tabs",
       "contextMenus",
       "sidePanel",
-      "notifications",
-      "downloads",
     ],
     host_permissions: ["https://*.supabase.co/*"],
     background: {
