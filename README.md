@@ -4,6 +4,8 @@ Thumbmark is a browser extension that helps you save and organize web content vi
 
 ---
 
+![Marquee Image](./marquee_image.png)
+
 ## Features
 
 ### One-Click Capture
