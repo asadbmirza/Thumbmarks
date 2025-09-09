@@ -8,6 +8,7 @@ Thumbmark is a browser extension that helps you save and organize web content vi
 
 ### One-Click Capture
 Capture a screenshot of the **visible portion** of a webpage with a single click of the extension icon. The extension also automatically grabs the page's URL, location and title.
+[./images/Capture\ Current\ Tab]
 
 ### Visual Gallery
 Your saved bookmarks are displayed in a clean gallery view, represented by their screenshot thumbnails and titles. Clicking on a bookmark opens the original URL in a new tab at the saved location.
