@@ -6,12 +6,13 @@ export default defineConfig({
   srcDir: "src",
   manifest: {
     name: "Thumbmark's - Visual Bookmarks",
-    version: "1.0.0",
+    description:
+      "Introducing Thumbmarks, the intelligent Chrome Extension that transforms how you save and revisit webpages.",
+    version: "1.0.3",
     permissions: [
       "storage",
       "scripting",
       "activeTab",
-      "tabs",
       "contextMenus",
       "sidePanel",
     ],

@@ -52,7 +52,6 @@ type BackgroundMessageTypeFunction = {
 };
 
 enum ContentMessageType {
-  ShowNotification = "SHOW_NOTIFICATION",
   GetScrollData = "GET_SCROLL_DATA",
 }
 
@@ -70,7 +69,6 @@ type ScrollData = {
 };
 
 type ContentMessageTypeFunction = {
-  [ContentMessageType.ShowNotification]: (payload: ShowNotification) => void;
   [ContentMessageType.GetScrollData]: () => ScrollData;
 };
 

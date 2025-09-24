@@ -318,7 +318,7 @@ const BookmarksPage = ({
           ))}
         </Grid>
       </Box>
-      <Box
+      {/* <Box
         sx={{
           py: 1,
           backgroundColor: "background.paper",
@@ -333,7 +333,7 @@ const BookmarksPage = ({
         >
           + Capture Current Tab
         </Button>
-      </Box>
+      </Box> */}
     </Box>
   );
 };
